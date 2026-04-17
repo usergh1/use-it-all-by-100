@@ -130,13 +130,6 @@
     flex-wrap: wrap;
   }
 
-  .rate-label {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-mid);
-    margin-right: 0.25rem;
-  }
-
   .rate-btn {
     font-family: var(--mono);
     font-size: 0.78rem;
@@ -194,6 +187,12 @@
   .swatch {
     width: 14px; height: 3px;
     border-radius: 2px;
+    display: inline-block;
+  }
+
+  .swatch-dash {
+    width: 14px; height: 0;
+    border-top: 2px dashed;
     display: inline-block;
   }
 
@@ -322,7 +321,6 @@
   </div>
 
   <div class="rate-bar">
-    <span class="rate-label">想定リターン：</span>
     <button class="rate-btn" data-rate="4">年率 4%</button>
     <button class="rate-btn active" data-rate="8">年率 8%</button>
     <button class="rate-btn" data-rate="12">年率 12%</button>
@@ -340,7 +338,7 @@
   </div>
 
   <div class="results">
-    <h3 id="resultsTitle">取り崩しプラン — 交点 = リタイア可能年齢</h3>
+    <h3 id="resultsTitle">リタイア年齢の早見表</h3>
     <table class="rtable">
       <thead>
         <tr>
@@ -445,7 +443,7 @@ function drawChart(data) {
   const W = rect.width, H = rect.height;
   ctx.clearRect(0, 0, W, H);
 
-  const pad = { top: 20, right: 20, bottom: 36, left: 56 };
+  const pad = { top: 24, right: 28, bottom: 36, left: 62 };
   const cw = W - pad.left - pad.right;
   const ch = H - pad.top - pad.bottom;
 
@@ -458,18 +456,32 @@ function drawChart(data) {
   }
   // 形成線は最も遅い交点までしか描かないので、その範囲の最大値も考慮
   let lastCrossMonth = 0;
+  let allImmediate = true;
+  let anyFeasible = false;
   for (const p of plans) {
-    if (p.feasible && p.crossMonth > lastCrossMonth) lastCrossMonth = p.crossMonth;
+    if (p.feasible) {
+      anyFeasible = true;
+      if (p.crossMonth > 0) allImmediate = false;
+      if (p.crossMonth > lastCrossMonth) lastCrossMonth = p.crossMonth;
+    }
   }
-  // 交点がない場合は全月チェック
-  if (lastCrossMonth === 0) lastCrossMonth = totalMonths;
-  for (let m = 0; m <= lastCrossMonth; m++) {
+  // 交点がない（到達不可）場合は全月描画、全部即リタイアなら形成線不要
+  if (!anyFeasible) lastCrossMonth = totalMonths;
+  if (allImmediate && anyFeasible) lastCrossMonth = 0;
+
+  for (let m = 1; m <= lastCrossMonth; m++) {
     if (growLine[m] > maxAsset) maxAsset = growLine[m];
   }
-  // 余裕を持たせて切り上げ
-  if (maxAsset >= 10000) maxAsset = Math.ceil(maxAsset / 2000) * 2000;
-  else if (maxAsset >= 1000) maxAsset = Math.ceil(maxAsset / 500) * 500;
-  else maxAsset = Math.ceil(maxAsset / 100) * 100;
+  // 余裕を持たせて切り上げ — 1000万 or 2000万刻み
+  let yStep;
+  if (maxAsset > 8000) {
+    yStep = 2000;
+  } else {
+    yStep = 1000;
+  }
+  maxAsset = Math.ceil(maxAsset / yStep) * yStep;
+  if (maxAsset < yStep) maxAsset = yStep;
+  const yTicks = Math.round(maxAsset / yStep);
 
   const xPos = age => pad.left + ((age - minAge) / (maxAge - minAge)) * cw;
   const yPos = asset => pad.top + ch - (Math.max(asset, 0) / maxAsset) * ch;
@@ -478,37 +490,45 @@ function drawChart(data) {
   // グリッド
   ctx.strokeStyle = '#eeedea';
   ctx.lineWidth = 1;
-  const yTicks = 5;
   for (let i = 0; i <= yTicks; i++) {
     const yy = pad.top + (ch / yTicks) * i;
     ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(W - pad.right, yy); ctx.stroke();
   }
 
-  // Y軸ラベル
+  // Y軸ラベル — 数字のみ、単位は上端に1回
   ctx.fillStyle = '#a09e99';
   ctx.font = '10px "IBM Plex Mono", monospace';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   for (let i = 0; i <= yTicks; i++) {
-    const val = maxAsset - (maxAsset / yTicks) * i;
+    const val = maxAsset - yStep * i;
     const yy = pad.top + (ch / yTicks) * i;
-    let label;
-    if (val >= 10000) label = (val/10000).toFixed(val%10000===0?0:1) + '億';
-    else if (val >= 1000) label = (val/1000).toFixed(val%1000===0?0:1) + '千万';
-    else label = Math.round(val) + '万';
-    ctx.fillText(label, pad.left - 8, yy);
+    ctx.fillText(val.toLocaleString(), pad.left - 8, yy);
   }
+  // 単位ラベル
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  ctx.font = '9px "Noto Sans JP", sans-serif';
+  ctx.fillStyle = '#b5b3ae';
+  ctx.fillText('（万円）', pad.left - 4, pad.top - 4);
 
-  // X軸ラベル
+  // X軸ラベル — 数字のみ、単位は右端に1回
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
+  ctx.font = '10px "IBM Plex Mono", monospace';
   const ageStep = (maxAge - minAge) > 50 ? 10 : 5;
   for (let a = Math.ceil(minAge / ageStep) * ageStep; a <= maxAge; a += ageStep) {
     ctx.fillStyle = '#a09e99';
-    ctx.fillText(a + '歳', xPos(a), pad.top + ch + 8);
+    ctx.fillText(a, xPos(a), pad.top + ch + 8);
     ctx.strokeStyle = '#f3f2ef'; ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(xPos(a), pad.top); ctx.lineTo(xPos(a), pad.top + ch); ctx.stroke();
   }
+  // 単位ラベル
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.font = '9px "Noto Sans JP", sans-serif';
+  ctx.fillStyle = '#b5b3ae';
+  ctx.fillText('（歳）', xPos(maxAge) + 4, pad.top + ch + 7);
 
   // サンプリング
   const step = Math.max(1, Math.floor(totalMonths / 500));
@@ -541,48 +561,50 @@ function drawChart(data) {
     ctx.restore();
   }
 
-  // ── 形成線を描画（最も遅い交点まで＋少し余裕） ──
-  const growEndMonth = Math.min(lastCrossMonth + Math.floor(totalMonths * 0.05), totalMonths);
+  // ── 形成線を描画（最も遅い交点まで＋少し余裕、即リタイア時はスキップ） ──
+  if (lastCrossMonth > 0) {
+    const growEndMonth = Math.min(lastCrossMonth + Math.floor(totalMonths * 0.05), totalMonths);
 
-  // エリア
-  ctx.beginPath();
-  ctx.moveTo(xPos(minAge), yPos(0));
-  for (let m = 0; m <= growEndMonth; m += step) ctx.lineTo(xPos(mToAge(m)), yPos(growLine[m]));
-  ctx.lineTo(xPos(mToAge(growEndMonth)), yPos(growLine[growEndMonth]));
-  ctx.lineTo(xPos(mToAge(growEndMonth)), yPos(0));
-  ctx.closePath();
-  const grd = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
-  grd.addColorStop(0, 'rgba(37,99,235,0.08)');
-  grd.addColorStop(1, 'rgba(37,99,235,0.01)');
-  ctx.fillStyle = grd;
-  ctx.fill();
+    // エリア
+    ctx.beginPath();
+    ctx.moveTo(xPos(minAge), yPos(0));
+    for (let m = 0; m <= growEndMonth; m += step) ctx.lineTo(xPos(mToAge(m)), yPos(growLine[m]));
+    ctx.lineTo(xPos(mToAge(growEndMonth)), yPos(growLine[growEndMonth]));
+    ctx.lineTo(xPos(mToAge(growEndMonth)), yPos(0));
+    ctx.closePath();
+    const grd = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+    grd.addColorStop(0, 'rgba(37,99,235,0.08)');
+    grd.addColorStop(1, 'rgba(37,99,235,0.01)');
+    ctx.fillStyle = grd;
+    ctx.fill();
 
-  // ライン
-  ctx.beginPath();
-  ctx.strokeStyle = '#2563eb';
-  ctx.lineWidth = 2.5;
-  ctx.lineJoin = 'round';
-  let first = true;
-  for (let m = 0; m <= growEndMonth; m += step) {
-    const px = xPos(mToAge(m)), py = yPos(growLine[m]);
-    first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-    first = false;
+    // ライン
+    ctx.beginPath();
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    let first = true;
+    for (let m = 0; m <= growEndMonth; m += step) {
+      const px = xPos(mToAge(m)), py = yPos(growLine[m]);
+      first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      first = false;
+    }
+    ctx.lineTo(xPos(mToAge(growEndMonth)), yPos(growLine[growEndMonth]));
+    ctx.stroke();
+
+    // 形成線ラベル
+    ctx.save();
+    ctx.fillStyle = '#2563eb';
+    ctx.font = '600 9.5px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('資産形成', xPos(mToAge(growEndMonth)) - 4, yPos(growLine[growEndMonth]) - 6);
+    ctx.restore();
   }
-  ctx.lineTo(xPos(mToAge(growEndMonth)), yPos(growLine[growEndMonth]));
-  ctx.stroke();
-
-  // 形成線ラベル
-  ctx.save();
-  ctx.fillStyle = '#2563eb';
-  ctx.font = '600 9.5px "IBM Plex Mono", monospace';
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText('資産形成', xPos(mToAge(growEndMonth)) - 4, yPos(growLine[growEndMonth]) - 6);
-  ctx.restore();
 
   // ── 交点マーカー ──
   for (const p of plans) {
-    if (!p.feasible) continue;
+    if (!p.feasible || p.crossMonth === 0) continue;
     const cx = xPos(p.crossAge);
     const cy = yPos(p.drawLine[p.crossMonth]);
 
@@ -620,7 +642,7 @@ function updateLegend() {
   const el = $('legend');
   let html = '<span><i class="swatch" style="background:#2563eb"></i>資産形成</span>';
   for (const d of DRAWDOWNS) {
-    html += `<span><i class="swatch" style="background:${d.color}"></i>${d.label}</span>`;
+    html += `<span><i class="swatch-dash" style="border-color:${d.color}"></i>${d.label}</span>`;
   }
   el.innerHTML = html;
 }
@@ -632,6 +654,11 @@ function updateTable(data) {
     if (!p.feasible) return `<tr>
       <td><span class="dot" style="background:${p.color}"></span>${p.amount}万円/月</td>
       <td class="dim" colspan="3">到達できません</td></tr>`;
+    if (p.crossMonth === 0) return `<tr>
+      <td><span class="dot" style="background:${p.color}"></span>${p.amount}万円/月</td>
+      <td class="dim">${fmtMan(p.neededAsset)}</td>
+      <td class="bold" style="color:#16a163">今すぐ可</td>
+      <td class="dim">—</td></tr>`;
     const yrs = Math.round(p.crossAge - ageNow);
     return `<tr>
       <td><span class="dot" style="background:${p.color}"></span>${p.amount}万円/月</td>

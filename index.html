@@ -186,7 +186,14 @@
     gap: 0.4rem;
   }
 
-  .chart-header h2 { font-size: 0.88rem; font-weight: 600; }
+  .section-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  .chart-header .section-title { margin-bottom: 0; }
 
   .chart-legend {
     display: flex;
@@ -234,11 +241,8 @@
     overflow-x: auto;
   }
 
-  .results h3 {
-    font-size: 0.82rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    color: var(--text-mid);
+  .results .section-title {
+    color: var(--text);
   }
 
   .rtable {
@@ -304,10 +308,11 @@
 
   <header>
     <h1>「100歳で使い切る」資産シミュレーター</h1>
-    <p class="sub">積み立てと取り崩し、2つの曲線の交点があなたのリタイア年齢です。</p>
+    <p class="sub">2つの曲線が交わるところが、取り崩しを始められる時期です。</p>
   </header>
 
   <div class="inputs">
+    <h2 class="section-title">あなたの条件</h2>
     <div class="input-row">
       <div class="field">
         <label>
@@ -347,7 +352,7 @@
 
   <div class="chart-section">
     <div class="chart-header">
-      <h2>資産推移</h2>
+      <h2 class="section-title">資産推移</h2>
       <div class="chart-legend" id="legend"></div>
     </div>
     <div class="canvas-wrap">
@@ -356,12 +361,12 @@
   </div>
 
   <div class="results">
-    <h3 id="resultsTitle">リタイア年齢の早見表</h3>
+    <h2 class="section-title" id="resultsTitle">取り崩し開始時期</h2>
     <table class="rtable">
       <thead>
         <tr>
           <th>取り崩し額</th>
-          <th>リタイア年齢</th>
+          <th>開始年齢</th>
           <th>あと何年</th>
           <th>必要資産</th>
         </tr>

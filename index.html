@@ -25,34 +25,65 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
+
+  /* ── Desktop layout ── */
   .app {
     max-width: 840px;
     margin: 0 auto;
-    padding: 1.5rem 1rem 4rem;
+    padding: 1.5rem 1rem 2rem;
   }
 
-  /* ── Main card (chart + table) ── */
+  /* ── Mobile: footer sticks to bottom ── */
+  @media (max-width: 600px) {
+    body { padding-bottom: 0; }
+    .app {
+      padding: 0.75rem 0.75rem 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    .main-card {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 0;
+      border-radius: 12px 12px 0 0;
+    }
+    .inputs {
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      border-bottom: none;
+      margin: 0 -0.75rem;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+    }
+  }
+
+  /* ── Main card ── */
   .main-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 1.5rem 1.25rem 1.25rem;
-    margin-bottom: 1.5rem;
+    padding: 1.25rem 1.15rem 1rem;
+    margin-bottom: 1.25rem;
   }
   .main-header {
     text-align: center;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
   }
   .main-header h1 {
-    font-size: clamp(1.1rem, 3.5vw, 1.45rem);
+    font-size: clamp(1rem, 3.2vw, 1.4rem);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.35;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.2rem;
   }
   .main-header .sub {
     color: var(--text-dim);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 400;
     line-height: 1.5;
   }
@@ -62,202 +93,159 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.4rem 0.75rem;
-    font-size: 0.6rem;
+    gap: 0.35rem 0.65rem;
+    font-size: 0.58rem;
     font-family: var(--mono);
     color: var(--text-dim);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
   }
-  .chart-legend span { display:flex; align-items:center; gap:4px; }
-  .swatch { width:14px; height:3px; border-radius:2px; display:inline-block; }
-  .swatch-dash { width:14px; height:0; border-top:2px dashed; display:inline-block; }
+  .chart-legend span { display:flex; align-items:center; gap:3px; }
+  .swatch { width:12px; height:2.5px; border-radius:2px; display:inline-block; }
+  .swatch-dash { width:12px; height:0; border-top:1.5px dashed; display:inline-block; }
 
   /* Canvas */
-  .canvas-wrap {
-    position: relative;
-    width: 100%;
-    height: 380px;
-  }
-  @media (max-width:600px) { .canvas-wrap { height: 300px; } }
-  canvas {
-    position: absolute;
-    top:0; left:0;
-    width:100%; height:100%;
-  }
+  .canvas-wrap { position:relative; width:100%; height:380px; }
+  @media (max-width:600px) { .canvas-wrap { height: 260px; } }
+  canvas { position:absolute; top:0; left:0; width:100%; height:100%; }
 
-  /* Results table inside main card */
+  /* Results inside main card */
   .results-inner {
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
     border-top: 1px solid var(--border);
   }
   .section-title {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 600;
     color: var(--text);
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.5rem;
   }
-  .rtable {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.78rem;
-    white-space: nowrap;
-  }
+  .rtable { width:100%; border-collapse:collapse; font-size:0.74rem; white-space:nowrap; }
   .rtable th {
-    text-align: left;
-    font-weight: 500;
-    font-size: 0.64rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-dim);
-    padding: 0.4rem 0.6rem;
-    border-bottom: 1px solid var(--border);
+    text-align:left; font-weight:500; font-size:0.6rem;
+    text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--text-dim); padding:0.35rem 0.5rem;
+    border-bottom:1px solid var(--border);
   }
   .rtable td {
-    padding: 0.5rem 0.6rem;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--mono);
-    font-size: 0.74rem;
+    padding:0.4rem 0.5rem; border-bottom:1px solid var(--border);
+    font-family:var(--mono); font-size:0.7rem;
   }
   .rtable tr:last-child td { border-bottom:none; }
-  .dot {
-    width:10px; height:10px;
-    border-radius:50%;
-    display:inline-block;
-    margin-right:0.4rem;
-    vertical-align:middle;
-  }
+  .dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:0.35rem; vertical-align:middle; }
   .bold { font-weight:600; color:var(--text); }
   .dim { color:var(--text-dim); }
 
-  /* ── Input card (bottom) ── */
+  .footnote-inline {
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+
+  /* ── Input card ── */
   .inputs {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 1.5rem 1.75rem;
-    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
   }
-  @media (max-width:600px) { .inputs { padding: 1.25rem; } }
+  @media (max-width:600px) {
+    .inputs { padding: 0.75rem 0.85rem 0.85rem; }
+  }
+
+  .inputs .section-title {
+    font-size: 0.72rem;
+    margin-bottom: 0.5rem;
+  }
 
   .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 1.5rem;
+    gap: 0.9rem;
   }
   @media (max-width:600px) {
-    .input-row { grid-template-columns: 1fr; gap: 1.1rem; }
+    .input-row { grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem 0.65rem; }
+  }
+  @media (max-width:380px) {
+    .input-row { grid-template-columns: 1fr; gap: 0.5rem; }
   }
 
   .field label {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 0.4rem;
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom: 0.3rem;
   }
-  .field-name {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-mid);
-  }
-  .field-val {
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--text);
-  }
-  .field-range {
-    display: block;
-    font-size: 0.63rem;
-    color: var(--text-dim);
-    margin-top: 0.3rem;
-  }
+  .field-name { font-size:0.68rem; font-weight:500; color:var(--text-mid); }
+  .field-val { font-family:var(--mono); font-size:0.72rem; font-weight:500; color:var(--text); }
+  .field-range { display:block; font-size:0.55rem; color:var(--text-dim); margin-top:0.2rem; }
+
   input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 4px;
-    border-radius: 2px;
-    background: var(--border);
-    outline: none;
-    cursor: pointer;
+    -webkit-appearance:none; appearance:none;
+    width:100%; height:3px; border-radius:2px;
+    background:var(--border); outline:none; cursor:pointer;
   }
   input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width:18px; height:18px;
-    border-radius:50%;
-    background: var(--grow);
-    border: 3px solid var(--surface);
-    box-shadow: 0 0 0 1px var(--grow), 0 1px 4px rgba(0,0,0,0.1);
+    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:var(--grow); border:2.5px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--grow), 0 1px 3px rgba(0,0,0,0.1);
   }
   input[type="range"]::-moz-range-thumb {
-    width:18px; height:18px;
-    border-radius:50%;
-    background: var(--grow);
-    border: 3px solid var(--surface);
-    cursor: pointer;
+    width:16px; height:16px; border-radius:50%;
+    background:var(--grow); border:2.5px solid var(--surface); cursor:pointer;
   }
 
-  /* Button rows (rate + target age) */
-  .btn-row {
+  /* Button rows */
+  .btn-rows {
     display: flex;
-    align-items: center;
     gap: 0.75rem;
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
     border-top: 1px solid var(--border);
     flex-wrap: wrap;
+    align-items: center;
   }
-  .btn-row + .btn-row {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: none;
+  .btn-set {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
   }
-  .btn-group { display:flex; gap:0.4rem; }
+  .btn-set-label {
+    font-size: 0.62rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .btn-group { display:flex; gap:0.25rem; }
 
   .preset-btn {
-    font-family: var(--mono);
-    font-size: 0.76rem;
-    font-weight: 500;
-    padding: 0.35rem 0.8rem;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-mid);
-    cursor: pointer;
-    transition: all 0.15s;
+    font-family:var(--mono); font-size:0.66rem; font-weight:500;
+    padding:0.25rem 0.55rem; border-radius:6px;
+    border:1px solid var(--border); background:var(--surface);
+    color:var(--text-mid); cursor:pointer; transition:all 0.12s;
   }
-  .preset-btn:hover {
-    border-color: var(--grow);
-    color: var(--grow);
-  }
-  .preset-btn.active {
-    background: var(--grow);
-    border-color: var(--grow);
-    color: #fff;
-  }
+  .preset-btn:hover { border-color:var(--grow); color:var(--grow); }
+  .preset-btn.active { background:var(--grow); border-color:var(--grow); color:#fff; }
 
-  .footnote {
-    text-align: center;
-    font-size: 0.64rem;
-    color: var(--text-dim);
-    line-height: 1.7;
+  /* Desktop footnote (hidden on mobile since it's inside card) */
+  @media (min-width:601px) {
+    .main-card { margin-bottom: 1.25rem; }
   }
 
   @keyframes fadeIn {
-    from { opacity:0; transform:translateY(6px); }
+    from { opacity:0; transform:translateY(4px); }
     to { opacity:1; transform:translateY(0); }
   }
-  .main-card, .inputs, .footnote {
-    animation: fadeIn 0.35s ease-out both;
+  .main-card, .inputs {
+    animation: fadeIn 0.3s ease-out both;
   }
-  .inputs { animation-delay: 0.05s; }
+  .inputs { animation-delay: 0.04s; }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- ── Main card: title + chart + table ── -->
+  <!-- ── Main card: title + chart + table + footnote ── -->
   <div class="main-card">
     <div class="main-header">
       <h1 id="mainTitle">「100歳で0円にする」資産シミュレーター</h1>
@@ -280,10 +268,13 @@
         </thead>
         <tbody id="resultBody"></tbody>
       </table>
+      <div class="footnote-inline">
+        税金・インフレ・手数料は考慮していません。運用リターンは一定と仮定した簡易シミュレーションです。
+      </div>
     </div>
   </div>
 
-  <!-- ── Input card (bottom) ── -->
+  <!-- ── Input card (sticky footer on mobile) ── -->
   <div class="inputs">
     <h2 class="section-title">あなたの条件</h2>
     <div class="input-row">
@@ -312,29 +303,28 @@
         <span class="field-range">1〜50万円</span>
       </div>
     </div>
-    <div class="btn-row">
-      <span class="field-name">想定年率</span>
-      <div class="btn-group">
-        <button class="preset-btn rate-btn" data-rate="4">4%</button>
-        <button class="preset-btn rate-btn active" data-rate="8">8%</button>
-        <button class="preset-btn rate-btn" data-rate="12">12%</button>
-        <button class="preset-btn rate-btn" data-rate="16">16%</button>
+    <div class="btn-rows">
+      <div class="btn-set">
+        <span class="btn-set-label">想定年率</span>
+        <div class="btn-group">
+          <button class="preset-btn rate-btn" data-rate="4">4%</button>
+          <button class="preset-btn rate-btn active" data-rate="8">8%</button>
+          <button class="preset-btn rate-btn" data-rate="12">12%</button>
+          <button class="preset-btn rate-btn" data-rate="16">16%</button>
+          <button class="preset-btn rate-btn" data-rate="20">20%</button>
+        </div>
+      </div>
+      <div class="btn-set">
+        <span class="btn-set-label">目標年齢</span>
+        <div class="btn-group">
+          <button class="preset-btn age-btn" data-target="80">80</button>
+          <button class="preset-btn age-btn" data-target="85">85</button>
+          <button class="preset-btn age-btn" data-target="90">90</button>
+          <button class="preset-btn age-btn" data-target="95">95</button>
+          <button class="preset-btn age-btn active" data-target="100">100</button>
+        </div>
       </div>
     </div>
-    <div class="btn-row">
-      <span class="field-name">目標年齢</span>
-      <div class="btn-group">
-        <button class="preset-btn age-btn" data-target="80">80歳</button>
-        <button class="preset-btn age-btn" data-target="85">85歳</button>
-        <button class="preset-btn age-btn" data-target="90">90歳</button>
-        <button class="preset-btn age-btn" data-target="95">95歳</button>
-        <button class="preset-btn age-btn active" data-target="100">100歳</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="footnote">
-    税金・インフレ・手数料は考慮していません。運用リターンは一定と仮定した簡易シミュレーションです。
   </div>
 
 </div>
@@ -354,8 +344,7 @@ const ins = { age: $('in_age'), asset: $('in_asset'), save: $('in_save') };
 let activeRate = 8;
 
 function fmtMan(v) {
-  const n = Math.round(Number(v));
-  return n.toLocaleString() + '万円';
+  return Math.round(Number(v)).toLocaleString() + '万円';
 }
 
 function compute() {
@@ -365,31 +354,25 @@ function compute() {
   const annualRate = activeRate / 100;
   const mr = annualRate / 12;
   const totalMonths = (targetAge - ageNow) * 12;
-
   if (totalMonths <= 0) return { ageNow, totalMonths: 0, growLine: new Float64Array(1), plans: [] };
 
   const growLine = new Float64Array(totalMonths + 1);
   growLine[0] = curAsset;
-  for (let m = 1; m <= totalMonths; m++) {
-    growLine[m] = growLine[m - 1] * (1 + mr) + monthlySave;
-  }
+  for (let m = 1; m <= totalMonths; m++) growLine[m] = growLine[m-1] * (1+mr) + monthlySave;
 
   const plans = [];
   for (const dd of DRAWDOWNS) {
     const drawLine = new Float64Array(totalMonths + 1);
     drawLine[totalMonths] = 0;
-    for (let m = totalMonths - 1; m >= 0; m--) {
-      drawLine[m] = (drawLine[m + 1] + dd.amount) / (1 + mr);
-    }
+    for (let m = totalMonths - 1; m >= 0; m--) drawLine[m] = (drawLine[m+1] + dd.amount) / (1+mr);
 
     let crossMonth = -1;
     for (let m = 0; m <= totalMonths; m++) {
       if (growLine[m] >= drawLine[m]) { crossMonth = m; break; }
     }
-
     plans.push({
       ...dd, drawLine, crossMonth,
-      crossAge: crossMonth >= 0 ? ageNow + crossMonth / 12 : null,
+      crossAge: crossMonth >= 0 ? ageNow + crossMonth/12 : null,
       neededAsset: crossMonth >= 0 ? Math.round(drawLine[crossMonth]) : null,
       feasible: crossMonth >= 0,
     });
@@ -402,224 +385,143 @@ function drawChart(data) {
   const canvas = $('chart');
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.parentElement.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
   const W = rect.width, H = rect.height;
   ctx.clearRect(0, 0, W, H);
-
   if (totalMonths <= 0) return;
 
-  const pad = { top: 24, right: 28, bottom: 36, left: 62 };
-  const cw = W - pad.left - pad.right;
-  const ch = H - pad.top - pad.bottom;
+  const pad = { top: 22, right: 26, bottom: 34, left: 58 };
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom;
+  const minAge = ageNow, maxAge = targetAge;
 
-  const minAge = ageNow;
-  const maxAge = targetAge;
   let maxAsset = 100;
-  for (const p of plans) { if (p.drawLine[0] > maxAsset) maxAsset = p.drawLine[0]; }
+  for (const p of plans) if (p.drawLine[0] > maxAsset) maxAsset = p.drawLine[0];
 
-  let lastCrossMonth = 0;
-  let allImmediate = true, anyFeasible = false;
+  let lastCM = 0, allImm = true, anyF = false;
   for (const p of plans) {
-    if (p.feasible) {
-      anyFeasible = true;
-      if (p.crossMonth > 0) allImmediate = false;
-      if (p.crossMonth > lastCrossMonth) lastCrossMonth = p.crossMonth;
-    }
+    if (p.feasible) { anyF = true; if (p.crossMonth > 0) allImm = false; if (p.crossMonth > lastCM) lastCM = p.crossMonth; }
   }
-  if (!anyFeasible) lastCrossMonth = totalMonths;
-  if (allImmediate && anyFeasible) lastCrossMonth = 0;
-  for (let m = 1; m <= lastCrossMonth; m++) { if (growLine[m] > maxAsset) maxAsset = growLine[m]; }
+  if (!anyF) lastCM = totalMonths;
+  if (allImm && anyF) lastCM = 0;
+  for (let m = 1; m <= lastCM; m++) if (growLine[m] > maxAsset) maxAsset = growLine[m];
 
   let yStep = maxAsset > 8000 ? 2000 : 1000;
   maxAsset = Math.ceil(maxAsset / yStep) * yStep;
   if (maxAsset < yStep) maxAsset = yStep;
   const yTicks = Math.round(maxAsset / yStep);
 
-  const xPos = age => pad.left + ((age - minAge) / (maxAge - minAge)) * cw;
-  const yPos = asset => pad.top + ch - (Math.max(asset, 0) / maxAsset) * ch;
-  const mToAge = m => ageNow + m / 12;
+  const xP = a => pad.left + ((a-minAge)/(maxAge-minAge))*cw;
+  const yP = v => pad.top + ch - (Math.max(v,0)/maxAsset)*ch;
+  const mA = m => ageNow + m/12;
 
   // Grid
-  ctx.strokeStyle = '#eeedea'; ctx.lineWidth = 1;
-  for (let i = 0; i <= yTicks; i++) {
-    const yy = pad.top + (ch / yTicks) * i;
-    ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(W - pad.right, yy); ctx.stroke();
-  }
+  ctx.strokeStyle='#eeedea'; ctx.lineWidth=1;
+  for (let i=0;i<=yTicks;i++){const y=pad.top+(ch/yTicks)*i;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(W-pad.right,y);ctx.stroke();}
 
   // Y labels
-  ctx.fillStyle = '#a09e99'; ctx.font = '10px "IBM Plex Mono", monospace';
-  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  for (let i = 0; i <= yTicks; i++) {
-    const val = maxAsset - yStep * i;
-    ctx.fillText(val.toLocaleString(), pad.left - 8, pad.top + (ch / yTicks) * i);
-  }
-  ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-  ctx.font = '9px "Noto Sans JP", sans-serif'; ctx.fillStyle = '#b5b3ae';
-  ctx.fillText('（万円）', pad.left - 4, pad.top - 4);
+  ctx.fillStyle='#a09e99';ctx.font='10px "IBM Plex Mono",monospace';ctx.textAlign='right';ctx.textBaseline='middle';
+  for(let i=0;i<=yTicks;i++){const v=maxAsset-yStep*i;ctx.fillText(v.toLocaleString(),pad.left-8,pad.top+(ch/yTicks)*i);}
+  ctx.textAlign='right';ctx.textBaseline='bottom';ctx.font='9px "Noto Sans JP",sans-serif';ctx.fillStyle='#b5b3ae';
+  ctx.fillText('（万円）',pad.left-4,pad.top-4);
 
   // X labels
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.font = '10px "IBM Plex Mono", monospace';
-  const ageSpan = maxAge - minAge;
-  const ageStep = ageSpan > 50 ? 10 : 5;
-  for (let a = Math.ceil(minAge / ageStep) * ageStep; a <= maxAge; a += ageStep) {
-    ctx.fillStyle = '#a09e99';
-    ctx.fillText(a, xPos(a), pad.top + ch + 8);
-    ctx.strokeStyle = '#f3f2ef'; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(xPos(a), pad.top); ctx.lineTo(xPos(a), pad.top + ch); ctx.stroke();
+  ctx.textAlign='center';ctx.textBaseline='top';ctx.font='10px "IBM Plex Mono",monospace';
+  const aStep=(maxAge-minAge)>50?10:5;
+  for(let a=Math.ceil(minAge/aStep)*aStep;a<=maxAge;a+=aStep){
+    ctx.fillStyle='#a09e99';ctx.fillText(a,xP(a),pad.top+ch+8);
+    ctx.strokeStyle='#f3f2ef';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(xP(a),pad.top);ctx.lineTo(xP(a),pad.top+ch);ctx.stroke();
   }
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.font = '9px "Noto Sans JP", sans-serif'; ctx.fillStyle = '#b5b3ae';
-  ctx.fillText('（歳）', xPos(maxAge) + 4, pad.top + ch + 7);
+  ctx.textAlign='left';ctx.textBaseline='top';ctx.font='9px "Noto Sans JP",sans-serif';ctx.fillStyle='#b5b3ae';
+  ctx.fillText('（歳）',xP(maxAge)+4,pad.top+ch+7);
 
-  const step = Math.max(1, Math.floor(totalMonths / 500));
+  const step=Math.max(1,Math.floor(totalMonths/500));
 
-  // Drawdown lines
-  for (const p of [...plans].reverse()) {
-    ctx.beginPath(); ctx.strokeStyle = p.color + '55'; ctx.lineWidth = 1.5;
-    ctx.setLineDash([5, 3]); ctx.lineJoin = 'round';
-    let f = true;
-    for (let m = 0; m <= totalMonths; m += step) {
-      const px = xPos(mToAge(m)), py = yPos(p.drawLine[m]);
-      f ? ctx.moveTo(px, py) : ctx.lineTo(px, py); f = false;
-    }
-    ctx.lineTo(xPos(targetAge), yPos(0)); ctx.stroke(); ctx.setLineDash([]);
-    const lm = Math.min(Math.floor(totalMonths * 0.03), 24);
-    ctx.save(); ctx.fillStyle = p.color;
-    ctx.font = '600 9px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-    ctx.fillText(p.label, xPos(mToAge(lm)) + 2, yPos(p.drawLine[lm]) - 4);
-    ctx.restore();
+  // Draw lines
+  for(const p of[...plans].reverse()){
+    ctx.beginPath();ctx.strokeStyle=p.color+'55';ctx.lineWidth=1.5;ctx.setLineDash([5,3]);ctx.lineJoin='round';
+    let f=true;
+    for(let m=0;m<=totalMonths;m+=step){const px=xP(mA(m)),py=yP(p.drawLine[m]);f?ctx.moveTo(px,py):ctx.lineTo(px,py);f=false;}
+    ctx.lineTo(xP(targetAge),yP(0));ctx.stroke();ctx.setLineDash([]);
+    const lm=Math.min(Math.floor(totalMonths*0.03),24);
+    ctx.save();ctx.fillStyle=p.color;ctx.font='600 9px "IBM Plex Mono",monospace';ctx.textAlign='left';ctx.textBaseline='bottom';
+    ctx.fillText(p.label,xP(mA(lm))+2,yP(p.drawLine[lm])-4);ctx.restore();
   }
 
   // Grow line
-  if (lastCrossMonth > 0) {
-    const ge = Math.min(lastCrossMonth + Math.floor(totalMonths * 0.05), totalMonths);
-    ctx.beginPath(); ctx.moveTo(xPos(minAge), yPos(0));
-    for (let m = 0; m <= ge; m += step) ctx.lineTo(xPos(mToAge(m)), yPos(growLine[m]));
-    ctx.lineTo(xPos(mToAge(ge)), yPos(growLine[ge]));
-    ctx.lineTo(xPos(mToAge(ge)), yPos(0)); ctx.closePath();
-    const grd = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
-    grd.addColorStop(0, 'rgba(37,99,235,0.08)'); grd.addColorStop(1, 'rgba(37,99,235,0.01)');
-    ctx.fillStyle = grd; ctx.fill();
+  if(lastCM>0){
+    const ge=Math.min(lastCM+Math.floor(totalMonths*0.05),totalMonths);
+    ctx.beginPath();ctx.moveTo(xP(minAge),yP(0));
+    for(let m=0;m<=ge;m+=step)ctx.lineTo(xP(mA(m)),yP(growLine[m]));
+    ctx.lineTo(xP(mA(ge)),yP(growLine[ge]));ctx.lineTo(xP(mA(ge)),yP(0));ctx.closePath();
+    const g=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
+    g.addColorStop(0,'rgba(37,99,235,0.08)');g.addColorStop(1,'rgba(37,99,235,0.01)');ctx.fillStyle=g;ctx.fill();
 
-    ctx.beginPath(); ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
-    let f = true;
-    for (let m = 0; m <= ge; m += step) {
-      const px = xPos(mToAge(m)), py = yPos(growLine[m]);
-      f ? ctx.moveTo(px, py) : ctx.lineTo(px, py); f = false;
-    }
-    ctx.lineTo(xPos(mToAge(ge)), yPos(growLine[ge])); ctx.stroke();
+    ctx.beginPath();ctx.strokeStyle='#2563eb';ctx.lineWidth=2.5;ctx.lineJoin='round';let f=true;
+    for(let m=0;m<=ge;m+=step){const px=xP(mA(m)),py=yP(growLine[m]);f?ctx.moveTo(px,py):ctx.lineTo(px,py);f=false;}
+    ctx.lineTo(xP(mA(ge)),yP(growLine[ge]));ctx.stroke();
 
-    ctx.save(); ctx.fillStyle = '#2563eb';
-    ctx.font = '600 9.5px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-    ctx.fillText('資産形成', xPos(mToAge(ge)) - 4, yPos(growLine[ge]) - 6);
-    ctx.restore();
+    ctx.save();ctx.fillStyle='#2563eb';ctx.font='600 9px "IBM Plex Mono",monospace';
+    ctx.textAlign='right';ctx.textBaseline='bottom';
+    ctx.fillText('資産形成',xP(mA(ge))-4,yP(growLine[ge])-6);ctx.restore();
   }
 
   // Cross markers
-  for (const p of plans) {
-    if (!p.feasible || p.crossMonth === 0) continue;
-    const cx = xPos(p.crossAge), cy = yPos(p.drawLine[p.crossMonth]);
-    ctx.save(); ctx.strokeStyle = p.color + '40'; ctx.lineWidth = 1;
-    ctx.setLineDash([2, 2]);
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, yPos(0)); ctx.stroke();
-    ctx.setLineDash([]); ctx.restore();
-
-    ctx.beginPath(); ctx.arc(cx, cy, 4.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff'; ctx.fill();
-    ctx.strokeStyle = p.color; ctx.lineWidth = 2; ctx.stroke();
-
-    ctx.save(); ctx.fillStyle = p.color;
-    ctx.font = '600 9px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-    ctx.fillText(Math.round(p.crossAge) + '歳', cx, cy - 8);
-    ctx.restore();
+  for(const p of plans){
+    if(!p.feasible||p.crossMonth===0)continue;
+    const cx=xP(p.crossAge),cy=yP(p.drawLine[p.crossMonth]);
+    ctx.save();ctx.strokeStyle=p.color+'40';ctx.lineWidth=1;ctx.setLineDash([2,2]);
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx,yP(0));ctx.stroke();ctx.setLineDash([]);ctx.restore();
+    ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    ctx.strokeStyle=p.color;ctx.lineWidth=2;ctx.stroke();
+    ctx.save();ctx.fillStyle=p.color;ctx.font='600 8.5px "IBM Plex Mono",monospace';
+    ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(Math.round(p.crossAge)+'歳',cx,cy-7);ctx.restore();
   }
 }
 
-function updateLegend() {
-  const el = $('legend');
-  let html = '<span><i class="swatch" style="background:#2563eb"></i>資産形成</span>';
-  for (const d of DRAWDOWNS) {
-    html += `<span><i class="swatch-dash" style="border-color:${d.color}"></i>${d.label}</span>`;
-  }
-  el.innerHTML = html;
+function updateLegend(){
+  $('legend').innerHTML='<span><i class="swatch" style="background:#2563eb"></i>資産形成</span>'+
+    DRAWDOWNS.map(d=>`<span><i class="swatch-dash" style="border-color:${d.color}"></i>${d.label}</span>`).join('');
 }
 
-function updateTable(data) {
-  const { ageNow, plans } = data;
-  $('resultBody').innerHTML = plans.map(p => {
-    if (!p.feasible) return `<tr>
-      <td><span class="dot" style="background:${p.color}"></span>${p.amount}万円/月</td>
-      <td class="dim" colspan="3">到達できません</td></tr>`;
-    if (p.crossMonth === 0) return `<tr>
-      <td><span class="dot" style="background:${p.color}"></span>${p.amount}万円/月</td>
-      <td class="bold" style="color:#16a163">今すぐ可</td>
-      <td class="dim">—</td>
-      <td class="dim">${fmtMan(p.neededAsset)}</td></tr>`;
-    const yrs = Math.round(p.crossAge - ageNow);
-    return `<tr>
-      <td><span class="dot" style="background:${p.color}"></span>${p.amount}万円/月</td>
-      <td class="bold">${Math.round(p.crossAge * 10) / 10}歳</td>
-      <td class="dim">${yrs}年</td>
-      <td class="dim">${fmtMan(p.neededAsset)}</td></tr>`;
+function updateTable(data){
+  const{ageNow,plans}=data;
+  $('resultBody').innerHTML=plans.map(p=>{
+    if(!p.feasible)return`<tr><td><span class="dot" style="background:${p.color}"></span>${p.amount}万円/月</td><td class="dim" colspan="3">到達できません</td></tr>`;
+    if(p.crossMonth===0)return`<tr><td><span class="dot" style="background:${p.color}"></span>${p.amount}万円/月</td><td class="bold" style="color:#16a163">今すぐ可</td><td class="dim">—</td><td class="dim">${fmtMan(p.neededAsset)}</td></tr>`;
+    const y=Math.round(p.crossAge-ageNow);
+    return`<tr><td><span class="dot" style="background:${p.color}"></span>${p.amount}万円/月</td><td class="bold">${Math.round(p.crossAge*10)/10}歳</td><td class="dim">${y}年</td><td class="dim">${fmtMan(p.neededAsset)}</td></tr>`;
   }).join('');
 }
 
-function updateTitle() {
-  $('mainTitle').textContent = `「${targetAge}歳で0円にする」資産シミュレーター`;
+function updateTitle(){
+  $('mainTitle').textContent=`「${targetAge}歳で0円にする」資産シミュレーター`;
+  document.title=$('mainTitle').textContent;
 }
 
-function update() {
-  $('v_age').textContent = ins.age.value + '歳';
-  $('v_asset').textContent = fmtMan(ins.asset.value);
-  $('v_save').textContent = ins.save.value + '万円/月';
-
-  // Clamp: if current age >= targetAge, warn
-  const ageNow = +ins.age.value;
-  if (ageNow >= targetAge) {
-    $('resultBody').innerHTML = `<tr><td class="dim" colspan="4">現在の年齢が目標年齢以上です</td></tr>`;
+function update(){
+  $('v_age').textContent=ins.age.value+'歳';
+  $('v_asset').textContent=fmtMan(ins.asset.value);
+  $('v_save').textContent=ins.save.value+'万円/月';
+  if(+ins.age.value>=targetAge){
+    $('resultBody').innerHTML=`<tr><td class="dim" colspan="4">現在の年齢が目標年齢以上です</td></tr>`;
     return;
   }
-
-  const data = compute();
-  drawChart(data);
-  updateTable(data);
+  const data=compute();drawChart(data);updateTable(data);
 }
 
-// Events
-for (const el of Object.values(ins)) el.addEventListener('input', update);
-
-document.querySelectorAll('.rate-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.rate-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeRate = +btn.dataset.rate;
-    update();
-  });
-});
-
-document.querySelectorAll('.age-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    targetAge = +btn.dataset.target;
-    updateTitle();
-    update();
-  });
-});
-
-let rt;
-window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(update, 80); });
-
-updateLegend();
-updateTitle();
-update();
+for(const el of Object.values(ins))el.addEventListener('input',update);
+document.querySelectorAll('.rate-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.rate-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');activeRate=+b.dataset.rate;update();
+}));
+document.querySelectorAll('.age-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.age-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');targetAge=+b.dataset.target;updateTitle();update();
+}));
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(update,80);});
+updateLegend();updateTitle();update();
 </script>
 </body>
 </html>

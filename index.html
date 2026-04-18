@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>「100歳で使い切る」資産シミュレーター</title>
+<title>「100歳で0円にする」資産シミュレーター</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -14,13 +14,10 @@
     --text-mid: #5c5a55;
     --text-dim: #9c9a94;
     --grow: #2563eb;
-    --grow-soft: rgba(37,99,235,0.07);
     --mono: 'IBM Plex Mono', monospace;
     --sans: 'Noto Sans JP', -apple-system, sans-serif;
   }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
+  * { margin:0; padding:0; box-sizing:border-box; }
   body {
     font-family: var(--sans);
     background: var(--bg);
@@ -28,32 +25,112 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
-
   .app {
     max-width: 840px;
     margin: 0 auto;
-    padding: 3rem 1.5rem 4rem;
+    padding: 1.5rem 1rem 4rem;
   }
 
-  /* ── Header ── */
-  header { margin-bottom: 2.5rem; }
-
-  header h1 {
-    font-size: clamp(1.3rem, 3.5vw, 1.65rem);
+  /* ── Main card (chart + table) ── */
+  .main-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .main-header {
+    text-align: center;
+    margin-bottom: 1.25rem;
+  }
+  .main-header h1 {
+    font-size: clamp(1.1rem, 3.5vw, 1.45rem);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.35;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.25rem;
   }
-
-  header .sub {
+  .main-header .sub {
     color: var(--text-dim);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 400;
-    line-height: 1.65;
+    line-height: 1.5;
   }
 
-  /* ── Input ── */
+  /* Legend */
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 0.75rem;
+    font-size: 0.6rem;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+  }
+  .chart-legend span { display:flex; align-items:center; gap:4px; }
+  .swatch { width:14px; height:3px; border-radius:2px; display:inline-block; }
+  .swatch-dash { width:14px; height:0; border-top:2px dashed; display:inline-block; }
+
+  /* Canvas */
+  .canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 380px;
+  }
+  @media (max-width:600px) { .canvas-wrap { height: 300px; } }
+  canvas {
+    position: absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+  }
+
+  /* Results table inside main card */
+  .results-inner {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+  .rtable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  .rtable th {
+    text-align: left;
+    font-weight: 500;
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .rtable td {
+    padding: 0.5rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+  }
+  .rtable tr:last-child td { border-bottom:none; }
+  .dot {
+    width:10px; height:10px;
+    border-radius:50%;
+    display:inline-block;
+    margin-right:0.4rem;
+    vertical-align:middle;
+  }
+  .bold { font-weight:600; color:var(--text); }
+  .dim { color:var(--text-dim); }
+
+  /* ── Input card (bottom) ── */
   .inputs {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -61,16 +138,15 @@
     padding: 1.5rem 1.75rem;
     margin-bottom: 1.5rem;
   }
+  @media (max-width:600px) { .inputs { padding: 1.25rem; } }
 
   .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 1.5rem;
   }
-
-  @media (max-width: 600px) {
+  @media (max-width:600px) {
     .input-row { grid-template-columns: 1fr; gap: 1.1rem; }
-    .inputs { padding: 1.25rem; }
   }
 
   .field label {
@@ -79,27 +155,23 @@
     align-items: baseline;
     margin-bottom: 0.4rem;
   }
-
   .field-name {
     font-size: 0.75rem;
     font-weight: 500;
     color: var(--text-mid);
   }
-
   .field-val {
     font-family: var(--mono);
     font-size: 0.8rem;
     font-weight: 500;
     color: var(--text);
   }
-
   .field-range {
     display: block;
     font-size: 0.63rem;
     color: var(--text-dim);
     margin-top: 0.3rem;
   }
-
   input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
@@ -110,26 +182,24 @@
     outline: none;
     cursor: pointer;
   }
-
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 18px; height: 18px;
-    border-radius: 50%;
+    width:18px; height:18px;
+    border-radius:50%;
     background: var(--grow);
     border: 3px solid var(--surface);
     box-shadow: 0 0 0 1px var(--grow), 0 1px 4px rgba(0,0,0,0.1);
   }
-
   input[type="range"]::-moz-range-thumb {
-    width: 18px; height: 18px;
-    border-radius: 50%;
+    width:18px; height:18px;
+    border-radius:50%;
     background: var(--grow);
     border: 3px solid var(--surface);
     cursor: pointer;
   }
 
-  /* ── Rate switcher (inside input card) ── */
-  .rate-row {
+  /* Button rows (rate + target age) */
+  .btn-row {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -138,17 +208,18 @@
     border-top: 1px solid var(--border);
     flex-wrap: wrap;
   }
-
-  .rate-buttons {
-    display: flex;
-    gap: 0.45rem;
+  .btn-row + .btn-row {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: none;
   }
+  .btn-group { display:flex; gap:0.4rem; }
 
-  .rate-btn {
+  .preset-btn {
     font-family: var(--mono);
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 500;
-    padding: 0.38rem 0.9rem;
+    padding: 0.35rem 0.8rem;
     border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--surface);
@@ -156,161 +227,63 @@
     cursor: pointer;
     transition: all 0.15s;
   }
-
-  .rate-btn:hover {
+  .preset-btn:hover {
     border-color: var(--grow);
     color: var(--grow);
   }
-
-  .rate-btn.active {
+  .preset-btn.active {
     background: var(--grow);
     border-color: var(--grow);
     color: #fff;
   }
 
-  /* ── Chart ── */
-  .chart-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.5rem 1.25rem 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-
-  .section-title {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 0.75rem;
-  }
-
-  .chart-header .section-title { margin-bottom: 0; }
-
-  .chart-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.85rem;
-    font-size: 0.65rem;
-    color: var(--text-dim);
-  }
-
-  .chart-legend span { display: flex; align-items: center; gap: 4px; }
-
-  .swatch {
-    width: 14px; height: 3px;
-    border-radius: 2px;
-    display: inline-block;
-  }
-
-  .swatch-dash {
-    width: 14px; height: 0;
-    border-top: 2px dashed;
-    display: inline-block;
-  }
-
-  .canvas-wrap {
-    position: relative;
-    width: 100%;
-    height: 400px;
-  }
-
-  @media (max-width: 600px) { .canvas-wrap { height: 300px; } }
-
-  canvas {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-  }
-
-  /* ── Results ── */
-  .results {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
-    overflow-x: auto;
-  }
-
-  .results .section-title {
-    color: var(--text);
-  }
-
-  .rtable {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.78rem;
-    white-space: nowrap;
-  }
-
-  .rtable th {
-    text-align: left;
-    font-weight: 500;
-    font-size: 0.66rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-dim);
-    padding: 0.45rem 0.7rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .rtable td {
-    padding: 0.55rem 0.7rem;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--mono);
-    font-size: 0.76rem;
-  }
-
-  .rtable tr:last-child td { border-bottom: none; }
-
-  .dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 0.4rem;
-    vertical-align: middle;
-  }
-
-  .bold { font-weight: 600; color: var(--text); }
-  .dim { color: var(--text-dim); }
-
   .footnote {
     text-align: center;
-    font-size: 0.66rem;
+    font-size: 0.64rem;
     color: var(--text-dim);
     line-height: 1.7;
-    margin-top: 2rem;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity:0; transform:translateY(6px); }
+    to { opacity:1; transform:translateY(0); }
   }
-  header, .inputs, .chart-section, .results, .footnote {
+  .main-card, .inputs, .footnote {
     animation: fadeIn 0.35s ease-out both;
   }
-  .inputs { animation-delay: 0.03s; }
-  .chart-section { animation-delay: 0.06s; }
-  .results { animation-delay: 0.09s; }
+  .inputs { animation-delay: 0.05s; }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <header>
-    <h1>「100歳で使い切る」資産シミュレーター</h1>
-    <p class="sub">2つの曲線が交わるところが、取り崩しを始められる時期です。</p>
-  </header>
+  <!-- ── Main card: title + chart + table ── -->
+  <div class="main-card">
+    <div class="main-header">
+      <h1 id="mainTitle">「100歳で0円にする」資産シミュレーター</h1>
+      <p class="sub">2つの曲線が交わるところが、取り崩しを始められる時期です。</p>
+    </div>
+    <div class="chart-legend" id="legend"></div>
+    <div class="canvas-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+    <div class="results-inner">
+      <h2 class="section-title">取り崩し開始時期</h2>
+      <table class="rtable">
+        <thead>
+          <tr>
+            <th>取り崩し額</th>
+            <th>開始年齢</th>
+            <th>あと何年</th>
+            <th>必要資産</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+  </div>
 
+  <!-- ── Input card (bottom) ── -->
   <div class="inputs">
     <h2 class="section-title">あなたの条件</h2>
     <div class="input-row">
@@ -339,40 +312,25 @@
         <span class="field-range">1〜50万円</span>
       </div>
     </div>
-    <div class="rate-row">
+    <div class="btn-row">
       <span class="field-name">想定年率</span>
-      <div class="rate-buttons">
-        <button class="rate-btn" data-rate="4">4%</button>
-        <button class="rate-btn active" data-rate="8">8%</button>
-        <button class="rate-btn" data-rate="12">12%</button>
-        <button class="rate-btn" data-rate="16">16%</button>
+      <div class="btn-group">
+        <button class="preset-btn rate-btn" data-rate="4">4%</button>
+        <button class="preset-btn rate-btn active" data-rate="8">8%</button>
+        <button class="preset-btn rate-btn" data-rate="12">12%</button>
+        <button class="preset-btn rate-btn" data-rate="16">16%</button>
       </div>
     </div>
-  </div>
-
-  <div class="chart-section">
-    <div class="chart-header">
-      <h2 class="section-title">資産推移</h2>
-      <div class="chart-legend" id="legend"></div>
+    <div class="btn-row">
+      <span class="field-name">目標年齢</span>
+      <div class="btn-group">
+        <button class="preset-btn age-btn" data-target="80">80歳</button>
+        <button class="preset-btn age-btn" data-target="85">85歳</button>
+        <button class="preset-btn age-btn" data-target="90">90歳</button>
+        <button class="preset-btn age-btn" data-target="95">95歳</button>
+        <button class="preset-btn age-btn active" data-target="100">100歳</button>
+      </div>
     </div>
-    <div class="canvas-wrap">
-      <canvas id="chart"></canvas>
-    </div>
-  </div>
-
-  <div class="results">
-    <h2 class="section-title" id="resultsTitle">取り崩し開始時期</h2>
-    <table class="rtable">
-      <thead>
-        <tr>
-          <th>取り崩し額</th>
-          <th>開始年齢</th>
-          <th>あと何年</th>
-          <th>必要資産</th>
-        </tr>
-      </thead>
-      <tbody id="resultBody"></tbody>
-    </table>
   </div>
 
   <div class="footnote">
@@ -382,7 +340,7 @@
 </div>
 
 <script>
-const TARGET_AGE = 100;
+let targetAge = 100;
 const DRAWDOWNS = [
   { amount: 20, color: '#16a163', label: '20万/月' },
   { amount: 25, color: '#2563eb', label: '25万/月' },
@@ -400,29 +358,23 @@ function fmtMan(v) {
   return n.toLocaleString() + '万円';
 }
 
-// ── 計算 ──
 function compute() {
   const ageNow = +ins.age.value;
   const curAsset = +ins.asset.value;
   const monthlySave = +ins.save.value;
   const annualRate = activeRate / 100;
   const mr = annualRate / 12;
-  const totalMonths = (TARGET_AGE - ageNow) * 12;
+  const totalMonths = (targetAge - ageNow) * 12;
 
-  // 線A: 形成線 (左→右、右肩上がり)
-  // growLine[m] = m月後の資産 (積み立て続けた場合)
+  if (totalMonths <= 0) return { ageNow, totalMonths: 0, growLine: new Float64Array(1), plans: [] };
+
   const growLine = new Float64Array(totalMonths + 1);
   growLine[0] = curAsset;
   for (let m = 1; m <= totalMonths; m++) {
     growLine[m] = growLine[m - 1] * (1 + mr) + monthlySave;
   }
 
-  // 線B群: 取り崩し線 (100歳0円から左に逆算)
-  // drawLine[dd][m] = 「m月目の時点で、ここから取り崩し始めて100歳で0円になるために必要な資産」
-  // drawLine[dd][totalMonths] = 0 (100歳 = 0円)
-  // drawLine[dd][m] = (drawLine[dd][m+1] + dd.amount) / (1 + mr)
   const plans = [];
-
   for (const dd of DRAWDOWNS) {
     const drawLine = new Float64Array(totalMonths + 1);
     drawLine[totalMonths] = 0;
@@ -430,29 +382,21 @@ function compute() {
       drawLine[m] = (drawLine[m + 1] + dd.amount) / (1 + mr);
     }
 
-    // 交点を探す: growLine[m] >= drawLine[m] となる最初の月
     let crossMonth = -1;
     for (let m = 0; m <= totalMonths; m++) {
-      if (growLine[m] >= drawLine[m]) {
-        crossMonth = m;
-        break;
-      }
+      if (growLine[m] >= drawLine[m]) { crossMonth = m; break; }
     }
 
     plans.push({
-      ...dd,
-      drawLine,
-      crossMonth,
+      ...dd, drawLine, crossMonth,
       crossAge: crossMonth >= 0 ? ageNow + crossMonth / 12 : null,
       neededAsset: crossMonth >= 0 ? Math.round(drawLine[crossMonth]) : null,
       feasible: crossMonth >= 0,
     });
   }
-
   return { ageNow, totalMonths, growLine, plans };
 }
 
-// ── チャート描画 ──
 function drawChart(data) {
   const { ageNow, totalMonths, growLine, plans } = data;
   const canvas = $('chart');
@@ -465,21 +409,19 @@ function drawChart(data) {
   const W = rect.width, H = rect.height;
   ctx.clearRect(0, 0, W, H);
 
+  if (totalMonths <= 0) return;
+
   const pad = { top: 24, right: 28, bottom: 36, left: 62 };
   const cw = W - pad.left - pad.right;
   const ch = H - pad.top - pad.bottom;
 
-  // 表示範囲 — Y軸は取り崩し線の最大値に合わせる（形成線は含めない）
   const minAge = ageNow;
-  const maxAge = TARGET_AGE;
+  const maxAge = targetAge;
   let maxAsset = 100;
-  for (const p of plans) {
-    if (p.drawLine[0] > maxAsset) maxAsset = p.drawLine[0]; // 左端が最大
-  }
-  // 形成線は最も遅い交点までしか描かないので、その範囲の最大値も考慮
+  for (const p of plans) { if (p.drawLine[0] > maxAsset) maxAsset = p.drawLine[0]; }
+
   let lastCrossMonth = 0;
-  let allImmediate = true;
-  let anyFeasible = false;
+  let allImmediate = true, anyFeasible = false;
   for (const p of plans) {
     if (p.feasible) {
       anyFeasible = true;
@@ -487,20 +429,11 @@ function drawChart(data) {
       if (p.crossMonth > lastCrossMonth) lastCrossMonth = p.crossMonth;
     }
   }
-  // 交点がない（到達不可）場合は全月描画、全部即リタイアなら形成線不要
   if (!anyFeasible) lastCrossMonth = totalMonths;
   if (allImmediate && anyFeasible) lastCrossMonth = 0;
+  for (let m = 1; m <= lastCrossMonth; m++) { if (growLine[m] > maxAsset) maxAsset = growLine[m]; }
 
-  for (let m = 1; m <= lastCrossMonth; m++) {
-    if (growLine[m] > maxAsset) maxAsset = growLine[m];
-  }
-  // 余裕を持たせて切り上げ — 1000万 or 2000万刻み
-  let yStep;
-  if (maxAsset > 8000) {
-    yStep = 2000;
-  } else {
-    yStep = 1000;
-  }
+  let yStep = maxAsset > 8000 ? 2000 : 1000;
   maxAsset = Math.ceil(maxAsset / yStep) * yStep;
   if (maxAsset < yStep) maxAsset = yStep;
   const yTicks = Math.round(maxAsset / yStep);
@@ -509,157 +442,106 @@ function drawChart(data) {
   const yPos = asset => pad.top + ch - (Math.max(asset, 0) / maxAsset) * ch;
   const mToAge = m => ageNow + m / 12;
 
-  // グリッド
-  ctx.strokeStyle = '#eeedea';
-  ctx.lineWidth = 1;
+  // Grid
+  ctx.strokeStyle = '#eeedea'; ctx.lineWidth = 1;
   for (let i = 0; i <= yTicks; i++) {
     const yy = pad.top + (ch / yTicks) * i;
     ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(W - pad.right, yy); ctx.stroke();
   }
 
-  // Y軸ラベル — 数字のみ、単位は上端に1回
-  ctx.fillStyle = '#a09e99';
-  ctx.font = '10px "IBM Plex Mono", monospace';
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'middle';
+  // Y labels
+  ctx.fillStyle = '#a09e99'; ctx.font = '10px "IBM Plex Mono", monospace';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   for (let i = 0; i <= yTicks; i++) {
     const val = maxAsset - yStep * i;
-    const yy = pad.top + (ch / yTicks) * i;
-    ctx.fillText(val.toLocaleString(), pad.left - 8, yy);
+    ctx.fillText(val.toLocaleString(), pad.left - 8, pad.top + (ch / yTicks) * i);
   }
-  // 単位ラベル
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'bottom';
-  ctx.font = '9px "Noto Sans JP", sans-serif';
-  ctx.fillStyle = '#b5b3ae';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+  ctx.font = '9px "Noto Sans JP", sans-serif'; ctx.fillStyle = '#b5b3ae';
   ctx.fillText('（万円）', pad.left - 4, pad.top - 4);
 
-  // X軸ラベル — 数字のみ、単位は右端に1回
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
+  // X labels
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   ctx.font = '10px "IBM Plex Mono", monospace';
-  const ageStep = (maxAge - minAge) > 50 ? 10 : 5;
+  const ageSpan = maxAge - minAge;
+  const ageStep = ageSpan > 50 ? 10 : 5;
   for (let a = Math.ceil(minAge / ageStep) * ageStep; a <= maxAge; a += ageStep) {
     ctx.fillStyle = '#a09e99';
     ctx.fillText(a, xPos(a), pad.top + ch + 8);
     ctx.strokeStyle = '#f3f2ef'; ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(xPos(a), pad.top); ctx.lineTo(xPos(a), pad.top + ch); ctx.stroke();
   }
-  // 単位ラベル
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  ctx.font = '9px "Noto Sans JP", sans-serif';
-  ctx.fillStyle = '#b5b3ae';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.font = '9px "Noto Sans JP", sans-serif'; ctx.fillStyle = '#b5b3ae';
   ctx.fillText('（歳）', xPos(maxAge) + 4, pad.top + ch + 7);
 
-  // サンプリング
   const step = Math.max(1, Math.floor(totalMonths / 500));
 
-  // ── 取り崩し線を描画（後ろから前に、薄い順） ──
+  // Drawdown lines
   for (const p of [...plans].reverse()) {
-    ctx.beginPath();
-    ctx.strokeStyle = p.color + '55';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([5, 3]);
-    ctx.lineJoin = 'round';
-    let first = true;
+    ctx.beginPath(); ctx.strokeStyle = p.color + '55'; ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 3]); ctx.lineJoin = 'round';
+    let f = true;
     for (let m = 0; m <= totalMonths; m += step) {
       const px = xPos(mToAge(m)), py = yPos(p.drawLine[m]);
-      first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-      first = false;
+      f ? ctx.moveTo(px, py) : ctx.lineTo(px, py); f = false;
     }
-    ctx.lineTo(xPos(TARGET_AGE), yPos(0));
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // ラベル（左端付近）
-    const labelM = Math.min(Math.floor(totalMonths * 0.03), 24);
-    ctx.save();
-    ctx.fillStyle = p.color;
+    ctx.lineTo(xPos(targetAge), yPos(0)); ctx.stroke(); ctx.setLineDash([]);
+    const lm = Math.min(Math.floor(totalMonths * 0.03), 24);
+    ctx.save(); ctx.fillStyle = p.color;
     ctx.font = '600 9px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(p.label, xPos(mToAge(labelM)) + 2, yPos(p.drawLine[labelM]) - 4);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    ctx.fillText(p.label, xPos(mToAge(lm)) + 2, yPos(p.drawLine[lm]) - 4);
     ctx.restore();
   }
 
-  // ── 形成線を描画（最も遅い交点まで＋少し余裕、即リタイア時はスキップ） ──
+  // Grow line
   if (lastCrossMonth > 0) {
-    const growEndMonth = Math.min(lastCrossMonth + Math.floor(totalMonths * 0.05), totalMonths);
-
-    // エリア
-    ctx.beginPath();
-    ctx.moveTo(xPos(minAge), yPos(0));
-    for (let m = 0; m <= growEndMonth; m += step) ctx.lineTo(xPos(mToAge(m)), yPos(growLine[m]));
-    ctx.lineTo(xPos(mToAge(growEndMonth)), yPos(growLine[growEndMonth]));
-    ctx.lineTo(xPos(mToAge(growEndMonth)), yPos(0));
-    ctx.closePath();
+    const ge = Math.min(lastCrossMonth + Math.floor(totalMonths * 0.05), totalMonths);
+    ctx.beginPath(); ctx.moveTo(xPos(minAge), yPos(0));
+    for (let m = 0; m <= ge; m += step) ctx.lineTo(xPos(mToAge(m)), yPos(growLine[m]));
+    ctx.lineTo(xPos(mToAge(ge)), yPos(growLine[ge]));
+    ctx.lineTo(xPos(mToAge(ge)), yPos(0)); ctx.closePath();
     const grd = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
-    grd.addColorStop(0, 'rgba(37,99,235,0.08)');
-    grd.addColorStop(1, 'rgba(37,99,235,0.01)');
-    ctx.fillStyle = grd;
-    ctx.fill();
+    grd.addColorStop(0, 'rgba(37,99,235,0.08)'); grd.addColorStop(1, 'rgba(37,99,235,0.01)');
+    ctx.fillStyle = grd; ctx.fill();
 
-    // ライン
-    ctx.beginPath();
-    ctx.strokeStyle = '#2563eb';
-    ctx.lineWidth = 2.5;
-    ctx.lineJoin = 'round';
-    let first = true;
-    for (let m = 0; m <= growEndMonth; m += step) {
+    ctx.beginPath(); ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+    let f = true;
+    for (let m = 0; m <= ge; m += step) {
       const px = xPos(mToAge(m)), py = yPos(growLine[m]);
-      first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-      first = false;
+      f ? ctx.moveTo(px, py) : ctx.lineTo(px, py); f = false;
     }
-    ctx.lineTo(xPos(mToAge(growEndMonth)), yPos(growLine[growEndMonth]));
-    ctx.stroke();
+    ctx.lineTo(xPos(mToAge(ge)), yPos(growLine[ge])); ctx.stroke();
 
-    // 形成線ラベル
-    ctx.save();
-    ctx.fillStyle = '#2563eb';
+    ctx.save(); ctx.fillStyle = '#2563eb';
     ctx.font = '600 9.5px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText('資産形成', xPos(mToAge(growEndMonth)) - 4, yPos(growLine[growEndMonth]) - 6);
+    ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    ctx.fillText('資産形成', xPos(mToAge(ge)) - 4, yPos(growLine[ge]) - 6);
     ctx.restore();
   }
 
-  // ── 交点マーカー ──
+  // Cross markers
   for (const p of plans) {
     if (!p.feasible || p.crossMonth === 0) continue;
-    const cx = xPos(p.crossAge);
-    const cy = yPos(p.drawLine[p.crossMonth]);
-
-    // 縦点線
-    ctx.save();
-    ctx.strokeStyle = p.color + '40';
-    ctx.lineWidth = 1;
+    const cx = xPos(p.crossAge), cy = yPos(p.drawLine[p.crossMonth]);
+    ctx.save(); ctx.strokeStyle = p.color + '40'; ctx.lineWidth = 1;
     ctx.setLineDash([2, 2]);
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, yPos(0)); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.restore();
+    ctx.setLineDash([]); ctx.restore();
 
-    // ドット
-    ctx.beginPath();
-    ctx.arc(cx, cy, 4.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-    ctx.strokeStyle = p.color;
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.strokeStyle = p.color; ctx.lineWidth = 2; ctx.stroke();
 
-    // 年齢ラベル
-    ctx.save();
-    ctx.fillStyle = p.color;
+    ctx.save(); ctx.fillStyle = p.color;
     ctx.font = '600 9px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
     ctx.fillText(Math.round(p.crossAge) + '歳', cx, cy - 8);
     ctx.restore();
   }
 }
 
-// ── レジェンド ──
 function updateLegend() {
   const el = $('legend');
   let html = '<span><i class="swatch" style="background:#2563eb"></i>資産形成</span>';
@@ -669,7 +551,6 @@ function updateLegend() {
   el.innerHTML = html;
 }
 
-// ── テーブル ──
 function updateTable(data) {
   const { ageNow, plans } = data;
   $('resultBody').innerHTML = plans.map(p => {
@@ -690,18 +571,28 @@ function updateTable(data) {
   }).join('');
 }
 
-// ── メイン更新 ──
+function updateTitle() {
+  $('mainTitle').textContent = `「${targetAge}歳で0円にする」資産シミュレーター`;
+}
+
 function update() {
   $('v_age').textContent = ins.age.value + '歳';
   $('v_asset').textContent = fmtMan(ins.asset.value);
   $('v_save').textContent = ins.save.value + '万円/月';
+
+  // Clamp: if current age >= targetAge, warn
+  const ageNow = +ins.age.value;
+  if (ageNow >= targetAge) {
+    $('resultBody').innerHTML = `<tr><td class="dim" colspan="4">現在の年齢が目標年齢以上です</td></tr>`;
+    return;
+  }
 
   const data = compute();
   drawChart(data);
   updateTable(data);
 }
 
-// ── イベント ──
+// Events
 for (const el of Object.values(ins)) el.addEventListener('input', update);
 
 document.querySelectorAll('.rate-btn').forEach(btn => {
@@ -713,10 +604,21 @@ document.querySelectorAll('.rate-btn').forEach(btn => {
   });
 });
 
+document.querySelectorAll('.age-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    targetAge = +btn.dataset.target;
+    updateTitle();
+    update();
+  });
+});
+
 let rt;
 window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(update, 80); });
 
 updateLegend();
+updateTitle();
 update();
 </script>
 </body>
